@@ -1,5 +1,6 @@
 HELP.md
 math_excercises.log
+MathExercises.pdf
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
