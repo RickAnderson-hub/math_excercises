@@ -37,16 +37,30 @@ public class PdfService {
             PDPage page = new PDPage();
             document.addPage(page);
             try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+                float margin = 25;
+                final float pageWidth = page.getMediaBox().getWidth();
+                final float columnWidth = (pageWidth - (4 * margin)) / 3; // 3 columns with equal spacing
+                int columns = equations.size() / 50 == 0 ? 1 : equations.size() / 50;
+                float yOffset = 725;
+                float xOffset = margin;
+                int lineCounter = 50;
                 contentStream.beginText();
-                contentStream.setFont(new PDType1Font(HELVETICA), 12);
-                contentStream.setLeading(14.5f);
-                contentStream.newLineAtOffset(25, 725);
-                for (Equation equation : equations) {
-                    String equationText = equation.getFirstNumber() + " " + equation.getOperator() + " " + equation.getSecondNumber() + " = " + equation.getResult();
-                    contentStream.showText(equationText);
-                    contentStream.newLine();
+                for (int i = 0; i <= columns; i++) {
+                    contentStream.setFont(new PDType1Font(HELVETICA), 12);
+                    contentStream.setLeading(14.5f);
+                    contentStream.newLineAtOffset(xOffset, yOffset);
+                    int equationIndex = i == 0 ? 0 : i * 50;
+                    for (int j = equationIndex; j < equationIndex + lineCounter; j++) {
+                        Equation equation = equations.get(j);
+                        String equationText = equation.getFirstNumber() + " " + equation.getOperator() + " " + equation.getSecondNumber() + " = " + equation.getResult();
+                        contentStream.showText(equationText);
+                        contentStream.newLine();
+                    }
+                    xOffset += columnWidth + margin;
+                    lineCounter = equations.size() - lineCounter > 50 ? equations.size() - 50 : equations.size() - lineCounter;
                 }
                 contentStream.endText();
+
             }
             document.save("MathExercises.pdf");
         } catch (IOException e) {
@@ -57,7 +71,7 @@ public class PdfService {
     /**
      * Generates a PDF file with exercises.  Used from the CLI.
      *
-     * @param limit The upper limit of the exercises.
+     * @param limit             The upper limit of the exercises.
      * @param numberOfExercises The number of exercises to generate.
      */
     public void cliPdf(int limit, int numberOfExercises) {
