@@ -7,7 +7,7 @@ import org.springframework.shell.standard.ShellOption;
 @ShellComponent
 public class ExerciseCommand {
 
-    @ShellMethod
+    @ShellMethod (key = "math")
     public void generateExercises(@ShellOption int limit, @ShellOption int numberOfExercises) {
        //do nothing/  Bit of a hack :(
     }
