@@ -5,13 +5,11 @@ import org.rick.math_excercises.service.GenerateService;
 import org.rick.math_excercises.service.PdfService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.List;
 
-@SpringBootApplication
-public class MathExcercisesApplication {
 
+public class MathExcercisesApplication {
 
     private static final GenerateService generateService = new GenerateService();
 

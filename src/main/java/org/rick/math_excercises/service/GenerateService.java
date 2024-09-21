@@ -1,7 +1,6 @@
 package org.rick.math_excercises.service;
 
 import org.rick.math_excercises.model.Equation;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +8,6 @@ import java.util.List;
 /**
  * This class is responsible for generating math exercises.
  */
-@Service
 public class GenerateService {
 
     /**
@@ -47,7 +45,7 @@ public class GenerateService {
         int secondNumber = (int) (Math.random() * limit);
         boolean isBothZero = firstNumber == 0 && secondNumber == 0;
         boolean resultIsNegative = isResultIsNegative(firstNumber, secondNumber, operator);
-        while (calculate(firstNumber, secondNumber, operator) > limit || isBothZero || resultIsNegative)  {
+        while (calculate(firstNumber, secondNumber, operator) > limit || isBothZero || resultIsNegative) {
             firstNumber = (int) (Math.random() * limit);
             secondNumber = (int) (Math.random() * limit);
             resultIsNegative = isResultIsNegative(firstNumber, secondNumber, operator);

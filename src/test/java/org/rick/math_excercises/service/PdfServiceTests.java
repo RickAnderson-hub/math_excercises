@@ -37,10 +37,8 @@ class PdfServiceTests {
                 new Equation(3, '1', 2, '-')
         );
         when(generate.generateExercises(10, 2)).thenReturn(equations);
-
         // When
         pdfService.generatePdf(equations, 1);
-
         // Then
         File file = new File("MathExercises_1.pdf");
         assert file.exists();

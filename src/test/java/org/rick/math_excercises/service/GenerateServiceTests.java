@@ -3,6 +3,7 @@ package org.rick.math_excercises.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.rick.math_excercises.model.Equation;
+
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
