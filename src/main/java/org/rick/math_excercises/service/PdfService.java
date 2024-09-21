@@ -16,7 +16,7 @@ import java.util.Random;
 @Slf4j
 public class PdfService {
 
-    public void generatePdf(List<Equation> equations) {
+    public void generatePdf(List<Equation> equations, int iteration) {
         if (equations.isEmpty()) {
             throw new IllegalArgumentException("Equations list cannot be empty.");
         }
@@ -28,7 +28,7 @@ public class PdfService {
                 setupContentStream(contentStream, font);
                 writeEquationsToContentStream(contentStream, equations, page);
             }
-            document.save("MathExercises.pdf");
+            document.save("MathExercises_" + iteration + ".pdf");
         } catch (IOException e) {
             log.info(e.getMessage(), e);
         }
@@ -49,6 +49,7 @@ public class PdfService {
         float xOffset = margin;
         int lineCounter = Math.min(50, equations.size());
         int arrayIndex = 0;
+
         for (int i = 1; i <= columns; i++) {
             contentStream.newLineAtOffset(xOffset, yOffset);
             for (int j = 0; j < lineCounter; j++) {

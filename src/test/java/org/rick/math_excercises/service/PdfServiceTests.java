@@ -39,10 +39,10 @@ class PdfServiceTests {
         when(generate.generateExercises(10, 2)).thenReturn(equations);
 
         // When
-        pdfService.generatePdf(equations);
+        pdfService.generatePdf(equations, 1);
 
         // Then
-        File file = new File("MathExercises.pdf");
+        File file = new File("MathExercises_1.pdf");
         assert file.exists();
         file.delete(); // Clean up
     }
@@ -52,6 +52,6 @@ class PdfServiceTests {
     void generatePdfWithNoEquations() {
         // Given
         List<Equation> emptyList = List.of();
-        Assertions.assertThrows(IllegalArgumentException.class, () -> pdfService.generatePdf(emptyList));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> pdfService.generatePdf(emptyList, 1));
     }
 }
