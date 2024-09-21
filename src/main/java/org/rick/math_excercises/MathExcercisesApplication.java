@@ -3,11 +3,9 @@ package org.rick.math_excercises;
 import org.rick.math_excercises.model.Equation;
 import org.rick.math_excercises.service.GenerateService;
 import org.rick.math_excercises.service.PdfService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.List;
 
@@ -15,9 +13,9 @@ import java.util.List;
 public class MathExcercisesApplication {
 
 
-    private static GenerateService generateService = new GenerateService();
+    private static final GenerateService generateService = new GenerateService();
 
-    private static PdfService pdfService = new PdfService();
+    private static final PdfService pdfService = new PdfService();
 
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(MathExcercisesApplication.class);
