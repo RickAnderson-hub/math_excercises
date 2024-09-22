@@ -1,6 +1,7 @@
 package org.rick.math_excercises.service;
 
 import org.rick.math_excercises.model.Equation;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.List;
 /**
  * This class is responsible for generating math exercises.
  */
+@Service
 public class GenerateService {
 
     /**

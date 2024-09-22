@@ -1,16 +1,19 @@
 package org.rick.math_excercises.service;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.rick.math_excercises.model.Equation;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
+@Service
 @Slf4j
 public class PdfService {
 
