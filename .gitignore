@@ -1,6 +1,9 @@
 HELP.md
 math_excercises.log
 qodana.yaml
+
+node_modules
+.npm/
 *.pdf
 .gradle
 build/
@@ -39,3 +42,4 @@ out/
 ### VS Code ###
 .vscode/
 /MathExercises_1.pdf
+/npm/

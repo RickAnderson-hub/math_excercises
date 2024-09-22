@@ -1,0 +1,9 @@
+
+{
+  "name": "math-exercises-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Math Exercises application",
+  "scripts": {
+    "build": "echo 'Add your build script here'"
+  }
+}

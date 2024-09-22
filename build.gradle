@@ -1,25 +1,8 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.3'
-    id 'io.spring.dependency-management' version '1.1.6'
-    id 'com.moowork.node' version '1.3.1'
-}
-
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.apache.pdfbox:pdfbox:3.0.3'
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-}
-
-node {
-    version = '14.17.0'
-    npmVersion = '6.14.13'
-    download = true
-    workDir = file("${project.buildDir}/nodejs")
-    npmWorkDir = file("${project.buildDir}/npm")
+    id 'org.springframework.boot' version '3.2.3'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'com.github.node-gradle.node' version '7.0.1'
 }
 
 group = 'org.rick'
@@ -41,19 +24,98 @@ repositories {
     mavenCentral()
 }
 
-task npmInstall(type: NpmTask) {
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.apache.pdfbox:pdfbox:3.0.1'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+def frontendDir = file("${project.projectDir}/frontend")
+
+node {
+    version = '20.11.1'
+    npmVersion = '10.2.4'
+    download = true
+    workDir = layout.buildDirectory.set(layout.projectDirectory.dir("nodejs"))
+    npmWorkDir = layout.buildDirectory.set(layout.projectDirectory.dir("npm"))
+    nodeProjectDir = frontendDir
+}
+
+tasks.register('createFrontendDir') {
+    doLast {
+        frontendDir.mkdirs()
+    }
+}
+
+tasks.register('createPackageJson') {
+    dependsOn createFrontendDir
+    doLast {
+        def packageJsonFile = file("${frontendDir}/package.json")
+        if (!packageJsonFile.exists()) {
+            packageJsonFile.text = """
+{
+  "name": "math-exercises-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Math Exercises application",
+  "scripts": {
+    "build": "echo 'Add your build script here'"
+  }
+}
+"""
+        }
+    }
+}
+
+tasks.register('npmInstallFrontend', NpmTask) {
+    dependsOn createPackageJson
     args = ['install']
-    workingDir = file('frontend')
+    workingDir = frontendDir
+
+    doFirst {
+        println "Starting npm install in ${workingDir}"
+    }
+
+    doLast {
+        println "Finished npm install in ${workingDir}"
+        if (result.exitValue != 0) {
+            throw new GradleException("npm install failed. Exit code: ${result.exitValue}")
+        }
+    }
 }
 
-task buildFrontend(type: NpmTask, dependsOn: npmInstall) {
+tasks.register('buildFrontend', NpmTask) {
+    dependsOn npmInstallFrontend
     args = ['run', 'build']
-    workingDir = file('frontend')
+    workingDir = frontendDir
+
+    doFirst {
+        println "Starting frontend build in ${workingDir}"
+    }
+
+    doLast {
+        println "Finished frontend build in ${workingDir}"
+        if (result.exitValue != 0) {
+            throw new GradleException("Frontend build failed. Exit code: ${result.exitValue}")
+        }
+    }
 }
 
-processResources {
+tasks.named('processResources') {
     dependsOn buildFrontend
-    from("frontend/build") {
+    from("${frontendDir}/build") {
         into 'static'
     }
+}
+
+tasks.named('npmInstallFrontend').configure {
+    inputs.file("${frontendDir}/package.json")
+    outputs.dir("${frontendDir}/node_modules")
+}
+
+tasks.named('buildFrontend').configure {
+    inputs.files(fileTree(frontendDir).exclude('build', 'node_modules'))
+    outputs.dir("${frontendDir}/build")
 }
