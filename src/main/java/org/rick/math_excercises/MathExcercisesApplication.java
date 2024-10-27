@@ -5,12 +5,11 @@ import org.rick.math_excercises.service.GenerateService;
 import org.rick.math_excercises.service.PdfService;
 
 import java.util.List;
-
+import java.util.stream.IntStream;
 
 public class MathExcercisesApplication {
 
     private static final GenerateService generateService = new GenerateService();
-
     private static final PdfService pdfService = new PdfService();
 
     /**
@@ -29,9 +28,9 @@ public class MathExcercisesApplication {
         int limit = Integer.parseInt(args[0]);
         int numberOfExercises = Integer.parseInt(args[1]);
         int iterations = Integer.parseInt(args[2]);
-        for (int i = 1; i <= iterations; i++) {
+        IntStream.rangeClosed(1, iterations).forEach(i -> {
             List<Equation> equations = generateService.generateExercises(limit, numberOfExercises);
             pdfService.generatePdf(equations, i);
-        }
+        });
     }
 }

@@ -10,6 +10,7 @@ import org.rick.math_excercises.model.Equation;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.IntStream;
 
 @Slf4j
 public class PdfService {
@@ -44,21 +45,26 @@ public class PdfService {
         final float columnWidth = (pageWidth - (4 * margin)) / 3;
         int columns = (equations.size() + 49) / 50;
         float yOffset = 725;
-        float xOffset = margin;
-        int lineCounter = Math.min(50, equations.size());
-        int arrayIndex = 0;
-
-        for (int i = 1; i <= columns; i++) {
-            contentStream.newLineAtOffset(xOffset, yOffset);
-            for (int j = 0; j < lineCounter; j++) {
-                Equation equation = equations.get(arrayIndex++);
-                String equationText = getEquationWithPlaceHolder(equation);
-                contentStream.showText(equationText);
-                contentStream.newLine();
+        final float[] xOffset = {margin};
+        IntStream.range(0, columns).forEach(i -> {
+            try {
+                contentStream.newLineAtOffset(xOffset[0], yOffset);
+                equations.stream()
+                        .skip(i * 50L)
+                        .limit(50)
+                        .forEach(equation -> {
+                            try {
+                                contentStream.showText(getEquationWithPlaceHolder(equation));
+                                contentStream.newLine();
+                            } catch (IOException e) {
+                                log.info(e.getMessage(), e);
+                            }
+                        });
+                xOffset[0] = columnWidth;
+            } catch (IOException e) {
+                log.info(e.getMessage(), e);
             }
-            lineCounter = Math.min(equations.size() - i * lineCounter, 50);
-            xOffset = columnWidth;
-        }
+        });
         contentStream.endText();
     }
 
