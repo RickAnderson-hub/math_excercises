@@ -1,0 +1,7 @@
+# Global code owners
+* @RickAnderson-hub
+
+# Dependency files
+renovate.json @RickAnderson-hub
+build.gradle @RickAnderson-hub
+gradle/ @RickAnderson-hub

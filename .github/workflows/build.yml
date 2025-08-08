@@ -21,7 +21,27 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Build with Gradle
+      - name: Setup Gradle
         uses: gradle/gradle-build-action@v3
+      - name: Run tests
+        run: ./gradlew test
+      - name: Build with Gradle
+        run: ./gradlew build
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
         with:
+          files: |
+            build/test-results/**/*.xml
+      - name: Comment PR
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request' && failure()
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '❌ Build failed! Please check the workflow logs for details.'
+            })
           arguments: build
