@@ -3,14 +3,15 @@ plugins {
     id 'org.springframework.boot' version '3.5.5'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.diffplug.spotless' version '6.25.0'
+    id 'jacoco'
 }
 
 group = 'org.rick'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
@@ -49,18 +50,41 @@ dependencyManagement {
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy 'jacocoTestReport'
 }
 
-spotless {
-    java {
-        target 'src/**/*.java'
-        licenseHeaderFile(rootProject.file('config/spotless/license.java'), 'package ')
+jacoco {
+    toolVersion = '0.8.11'
+}
+
+// Configure the existing JaCoCo report task created by the jacoco plugin
+tasks.named('jacocoTestReport', JacocoReport) {
+    dependsOn tasks.named('test')
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
     }
 }
 
-// Ensure formatting is checked during the verification lifecycle
- tasks.named('check') {
-    dependsOn 'spotlessCheck'
+// Configure the existing coverage verification task
+tasks.named('jacocoTestCoverageVerification', JacocoCoverageVerification) {
+    dependsOn tasks.named('test')
+    violationRules {
+        rule {
+            element = 'BUNDLE'
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+        }
+    }
+}
+
+// Ensure formatting is checked and coverage verified in the verification lifecycle
+tasks.named('check') {
+    dependsOn 'spotlessCheck', 'jacocoTestCoverageVerification'
 }
 
 // --- Custom generation tasks ---
@@ -92,8 +116,8 @@ tasks.register('generateAddSub', JavaExec) {
 
 // Multiplication/Division generator
 // If no explicit numberOfExercises provided, default to 200 to render 4 columns
- def mulDivCount = ((project.findProperty('numberOfExercises') ?: project.findProperty('count')) ?: '200') as String
- tasks.register('generateMulDiv', JavaExec) {
+def mulDivCount = ((project.findProperty('numberOfExercises') ?: project.findProperty('count')) ?: '200') as String
+tasks.register('generateMulDiv', JavaExec) {
     group = 'application'
     description = 'Generate math exercises (MULTIPLICATION,DIVISION) into a PDF using the app'
     classpath = sourceSets.main.runtimeClasspath
