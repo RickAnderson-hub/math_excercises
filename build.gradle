@@ -91,12 +91,14 @@ tasks.register('generateAddSub', JavaExec) {
 }
 
 // Multiplication/Division generator
-tasks.register('generateMulDiv', JavaExec) {
+// If no explicit numberOfExercises provided, default to 200 to render 4 columns
+ def mulDivCount = ((project.findProperty('numberOfExercises') ?: project.findProperty('count')) ?: '200') as String
+ tasks.register('generateMulDiv', JavaExec) {
     group = 'application'
     description = 'Generate math exercises (MULTIPLICATION,DIVISION) into a PDF using the app'
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'org.rick.math_excercises.MathExcercisesApplication'
-    args defaultLimit, defaultCount, defaultIterations, 'MULTIPLICATION,DIVISION'
+    args defaultLimit, mulDivCount, defaultIterations, 'MULTIPLICATION,DIVISION'
     // Distinct filename suffix
     jvmArgs "-DoutputBaseName=${outputBaseName}", '-DoutputSuffix=_MulDiv'
     dependsOn tasks.named('classes')

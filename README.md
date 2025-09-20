@@ -24,7 +24,7 @@ build/libs/math_excercises-0.0.1-SNAPSHOT.jar
 ## Quick start
 
 ### Option A: Use Gradle tasks (recommended)
-These tasks run the app with sensible defaults and distinct output filenames.
+These tasks run the app with sensible defaults and distinct output filenames. The PDF layout uses 50 equations per column, so 200 exercises renders as 4 columns per page.
 
 - Addition/Subtraction
 ```bash
@@ -37,7 +37,7 @@ MathExercises_1_AddSub.pdf
 
 - Multiplication/Division
 ```bash
-./gradlew generateMulDiv -Plimit=12 -PnumberOfExercises=100 -Piterations=1
+./gradlew generateMulDiv -Plimit=12 -PnumberOfExercises=200 -Piterations=1
 ```
 Produces a PDF named like:
 ```
