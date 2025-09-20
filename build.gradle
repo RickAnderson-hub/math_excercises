@@ -65,6 +65,10 @@ tasks.named('jacocoTestReport', JacocoReport) {
         html.required = true
         csv.required = false
     }
+    // Exclude data model classes from coverage metrics
+    def modelExcludes = ['**/org/rick/math_excercises/model/**']
+    classDirectories.setFrom(files(sourceSets.main.output).asFileTree.matching { exclude modelExcludes })
+    sourceDirectories.setFrom(files(sourceSets.main.allSource.srcDirs))
 }
 
 // Configure the existing coverage verification task
@@ -80,6 +84,10 @@ tasks.named('jacocoTestCoverageVerification', JacocoCoverageVerification) {
             }
         }
     }
+    // Exclude data model classes from coverage verification
+    def modelExcludes = ['**/org/rick/math_excercises/model/**']
+    classDirectories.setFrom(files(sourceSets.main.output).asFileTree.matching { exclude modelExcludes })
+    sourceDirectories.setFrom(files(sourceSets.main.allSource.srcDirs))
 }
 
 // Ensure formatting is checked and coverage verified in the verification lifecycle

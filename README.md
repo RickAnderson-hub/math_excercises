@@ -98,9 +98,15 @@ Run the test suite:
 ./gradlew test
 ```
 
-Run tests with coverage and open the HTML report:
+## Code coverage
+- Coverage is enforced at 80% (lines). Data model classes are excluded from coverage metrics:
+  - Excluded pattern: `**/org/rick/math_excercises/model/**`
+- Generate the coverage report:
 ```bash
 ./gradlew jacocoTestReport
+```
+- Open the HTML report (Linux):
+```bash
 xdg-open build/reports/jacoco/test/html/index.html
 ```
 
