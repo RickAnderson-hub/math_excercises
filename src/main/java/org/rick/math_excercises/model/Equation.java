@@ -16,7 +16,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * This class is a model for an equation.
+ * Model representing a single arithmetic equation to be rendered in the PDF.
+ * <p>
+ * An equation consists of two operands (firstNumber and secondNumber), an
+ * operator (one of '+', '-', '*', '/'), and the expected result.
  */
 @Data
 @AllArgsConstructor
@@ -24,8 +27,23 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Equation {
 
+    /**
+     * The first operand in the equation (left-hand side).
+     */
     private int firstNumber;
+
+    /**
+     * The second operand in the equation (right-hand side).
+     */
     private int secondNumber;
+
+    /**
+     * The computed result of applying {@link #operator} to {@link #firstNumber} and {@link #secondNumber}.
+     */
     private int result;
+
+    /**
+     * The operator character representing the arithmetic operation ('+', '-', '*', '/').
+     */
     private char operator;
 }

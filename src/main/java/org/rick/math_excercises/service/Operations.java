@@ -10,7 +10,16 @@
 
 package org.rick.math_excercises.service;
 
+/**
+ * Supported arithmetic operations for worksheet generation.
+ */
 public enum Operations {
-    ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION
-
+    /** Addition operation ( + ). */
+    ADDITION,
+    /** Subtraction operation ( - ). */
+    SUBTRACTION,
+    /** Multiplication operation ( * ). */
+    MULTIPLICATION,
+    /** Division operation ( / ). */
+    DIVISION;
 }

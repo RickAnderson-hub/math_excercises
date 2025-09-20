@@ -15,7 +15,6 @@ import org.rick.math_excercises.model.Equation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -29,20 +28,29 @@ public class GenerateService {
      *
      * @param limit The upper limit of the math exercises.
      * @param numberOfExercises how many equations to generate
+     * @return list of generated equations using ADDITION and SUBTRACTION
      */
     public List<Equation> generateExercises(int limit, int numberOfExercises) {
-        // default to ADDITION and SUBTRACTION to preserve existing behavior/tests
         return generateExercises(limit, numberOfExercises, List.of(Operations.ADDITION, Operations.SUBTRACTION));
     }
 
     /**
      * Generates math exercises using the provided set of operations.
      * If operations is null or empty, defaults to ADDITION and SUBTRACTION.
+     * <p>
+     * Constraints enforced by the generator:
+     * <ul>
+     *   <li>limit must be >= 10</li>
+     *   <li>numberOfExercises must be >= 1</li>
+     *   <li>operands and results are non-negative and within the provided limit</li>
+     *   <li>division avoids zero divisors; multiplication avoids zero factors</li>
+     * </ul>
      *
      * @param limit The upper limit of the math exercises (must be >= 10)
-     * @param numberOfExercises how many equations to generate
-     * @param operations collection of allowed operations
+     * @param numberOfExercises how many equations to generate (must be >= 1)
+     * @param operations collection of allowed operations; null/empty uses ADDITION and SUBTRACTION
      * @return list of generated equations
+     * @throws IllegalArgumentException if limit {@code <} 10 or numberOfExercises {@code <} 1
      */
     public List<Equation> generateExercises(int limit, int numberOfExercises, Collection<Operations> operations) {
         if (limit < 10) {
@@ -78,8 +86,13 @@ public class GenerateService {
         return equations;
     }
 
-    // --- Specific equation generators ---
-
+    /**
+     * Generates a subtraction equation where the result is non-negative and within the limit.
+     * Both operands are within [0, limit], but not simultaneously zero.
+     *
+     * @param limit upper bound for operands and results (exclusive for random generation)
+     * @return an {@link Equation} representing subtraction
+     */
     private Equation generateSubtractionEquation(int limit) {
         int firstNumber = (int) (Math.random() * limit);
         int secondNumber = (int) (Math.random() * limit);
@@ -95,6 +108,12 @@ public class GenerateService {
                 .build();
     }
 
+    /**
+     * Generates an addition equation where the sum does not exceed the limit and not both operands are zero.
+     *
+     * @param limit upper bound for operands and results (exclusive for random generation)
+     * @return an {@link Equation} representing addition
+     */
     private Equation generateAdditionEquation(int limit) {
         int firstNumber = (int) (Math.random() * limit);
         int secondNumber = (int) (Math.random() * limit);
@@ -110,6 +129,13 @@ public class GenerateService {
                 .build();
     }
 
+    /**
+     * Generates a division equation with integer quotient and no zero divisors.
+     * The product (dividend) remains within the given limit.
+     *
+     * @param limit upper bound for operands and derived dividend
+     * @return an {@link Equation} representing division (firstNumber / secondNumber = result)
+     */
     private Equation generateDivisionEquation(int limit) {
         int secondNumber = (int) (Math.random() * (limit - 1)) + 1; // Avoid zero
         int result = (int) (Math.random() * limit);
@@ -127,6 +153,12 @@ public class GenerateService {
                 .build();
     }
 
+    /**
+     * Generates a multiplication equation avoiding zero operands and ensuring the product is within the limit.
+     *
+     * @param limit upper bound for operands and results (exclusive for random generation)
+     * @return an {@link Equation} representing multiplication
+     */
     private Equation generateMultiplicationEquation(int limit) {
         int firstNumber = (int) (Math.random() * limit);
         int secondNumber = (int) (Math.random() * limit);
@@ -142,10 +174,13 @@ public class GenerateService {
                 .build();
     }
 
-    // --- Selection helpers ---
-
+    /**
+     * Randomly generates either an addition or subtraction equation using the limit.
+     *
+     * @param limit upper bound for operands and results
+     * @return an {@link Equation} representing addition or subtraction
+     */
     private Equation generateSumOrDifferenceEquation(int limit) {
-        // 0 -> addition, 1 -> subtraction
         if (ThreadLocalRandom.current().nextBoolean()) {
             return generateAdditionEquation(limit);
         } else {
@@ -153,8 +188,15 @@ public class GenerateService {
         }
     }
 
+    /**
+     * Picks a random operation from the provided set and generates an equation accordingly.
+     * Optimized fast-path for the common case of ADDITION+SUBTRACTION.
+     *
+     * @param limit upper bound for operands and results
+     * @param ops non-empty list of allowed operations
+     * @return an {@link Equation} matching one of the allowed operations
+     */
     private Equation generateEquationForOperations(int limit, List<Operations> ops) {
-        // Fast path for common case of add/sub only
         if (ops.size() == 2 && ops.contains(Operations.ADDITION) && ops.contains(Operations.SUBTRACTION)) {
             return generateSumOrDifferenceEquation(limit);
         }
@@ -169,12 +211,12 @@ public class GenerateService {
     }
 
     /**
-     * This function does add and subtract operations.
+     * Performs a simple arithmetic calculation for addition or subtraction.
      *
-     * @param firstNumber  The first number.
-     * @param secondNumber The second number.
-     * @param operator     The operator (plus or minus).
-     * @return The result of the operation that is less than the limit supplied.
+     * @param firstNumber first operand
+     * @param secondNumber second operand
+     * @param operator '+' for addition or '-' for subtraction
+     * @return the arithmetic result
      */
     private int calculate(int firstNumber, int secondNumber, char operator) {
         if (operator == '+') {

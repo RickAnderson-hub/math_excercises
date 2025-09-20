@@ -21,9 +21,26 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Service responsible for rendering a list of {@link Equation} instances into a PDF document.
+ * <p>
+ * The output filename can be customized via the JVM system properties:
+ * <ul>
+ *   <li><b>outputBaseName</b>: base filename (default: {@code MathExercises})</li>
+ *   <li><b>outputSuffix</b>: suffix appended after the iteration (e.g., {@code _AddSub})</li>
+ * </ul>
+ * Layout: up to 50 equations per column, flowing across multiple columns on a single page.
+ */
 @Slf4j
 public class PdfService {
 
+    /**
+     * Generates a single-page PDF file containing the provided equations.
+     *
+     * @param equations non-empty list of equations to render
+     * @param iteration iteration number used in the output filename
+     * @throws IllegalArgumentException if {@code equations} is empty
+     */
     public void generatePdf(List<Equation> equations, int iteration) {
         if (equations.isEmpty()) {
             throw new IllegalArgumentException("Equations list cannot be empty.");
@@ -45,12 +62,27 @@ public class PdfService {
         }
     }
 
+    /**
+     * Initializes the content stream with font, leading, and begins text mode.
+     *
+     * @param contentStream content stream for the current page
+     * @param font loaded font to be used for text
+     * @throws IOException if stream operations fail
+     */
     private void setupContentStream(PDPageContentStream contentStream, PDType0Font font) throws IOException {
         contentStream.setFont(font, 12);
         contentStream.setLeading(14.5f);
         contentStream.beginText();
     }
 
+    /**
+     * Writes equations onto the page content stream, flowing across columns.
+     *
+     * @param contentStream the page content stream
+     * @param equations the equations to render
+     * @param page the current PDF page
+     * @throws IOException if a PDFBox write operation fails
+     */
     private void writeEquationsToContentStream(PDPageContentStream contentStream, List<Equation> equations, PDPage page) throws IOException {
         float margin = 50;
         final float pageWidth = page.getMediaBox().getWidth();
@@ -75,6 +107,13 @@ public class PdfService {
         contentStream.endText();
     }
 
+    /**
+     * Formats an equation with a randomly placed placeholder box (□) for either the first operand,
+     * second operand, or the result, to create fill-in-the-blank style problems.
+     *
+     * @param equation equation to format
+     * @return formatted string (e.g., {@code 3 + □ = 5})
+     */
     private String getEquationWithPlaceHolder(Equation equation) {
         int randomIndex = 1 + new Random().nextInt(3);
         String firstNumber = randomIndex == 1 ? "□" : String.valueOf(equation.getFirstNumber());

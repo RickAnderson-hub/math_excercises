@@ -21,7 +21,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-
+/**
+ * Entry point for the Math Exercises Generator application.
+ * <p>
+ * This application generates printable math worksheets (as PDFs) for the given
+ * limit, number of exercises, and number of iterations (pages). Optionally, a
+ * comma-separated list of operations can be provided to control which types of
+ * equations are generated.
+ */
 public class MathExcercisesApplication {
 
     private static final GenerateService generateService = new GenerateService();
@@ -35,7 +42,7 @@ public class MathExcercisesApplication {
      * The iterations is the number of sheets to generate.
      * Optional 4th arg: comma-separated list of operations (ADDITION,SUBTRACTION,MULTIPLICATION,DIVISION)
      *
-     * @param args Command line arguments: <limit> <numberOfExercises> <iterations> [operations]
+     * @param args Command line arguments: {@code <limit> <numberOfExercises> <iterations> [operations]}
      */
     public static void main(String[] args) {
         if (args.length < 3) {
@@ -62,6 +69,16 @@ public class MathExcercisesApplication {
         }
     }
 
+    /**
+     * Parses a comma-separated list of operation names into a set of {@link Operations}.
+     * <p>
+     * Input is case-insensitive and whitespace around items is ignored. If the input is
+     * null or blank, the default set {@code [ADDITION, SUBTRACTION]} is returned.
+     *
+     * @param arg comma-separated operation names (e.g., "ADDITION,SUBTRACTION")
+     * @return a non-empty set of operations
+     * @throws IllegalArgumentException if an unknown operation name is provided
+     */
     private static Set<Operations> parseOperationsArg(String arg) {
         if (arg == null || arg.isBlank()) {
             return EnumSet.of(Operations.ADDITION, Operations.SUBTRACTION);
