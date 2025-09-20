@@ -1,3 +1,13 @@
+/*
+ * Math Exercises Generator — Shareware License
+ * Copyright (c) 2025 Rick Anderson
+ * Contact: rick@getanderson.net
+ *
+ * Personal, non-commercial use permitted. Redistribution allowed with attribution.
+ * Any commercial use requires a paid license or prior written permission.
+ * See the LICENSE file for full terms.
+ */
+
 package org.rick.math_excercises.service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +28,9 @@ public class PdfService {
         if (equations.isEmpty()) {
             throw new IllegalArgumentException("Equations list cannot be empty.");
         }
+        // Allow customizing output name via JVM system properties
+        String baseName = System.getProperty("outputBaseName", "MathExercises");
+        String suffix = System.getProperty("outputSuffix", ""); // e.g. _AddSub or _MulDiv
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage();
             document.addPage(page);
@@ -26,7 +39,7 @@ public class PdfService {
                 setupContentStream(contentStream, font);
                 writeEquationsToContentStream(contentStream, equations, page);
             }
-            document.save("MathExercises_" + iteration + ".pdf");
+            document.save(baseName + "_" + iteration + suffix + ".pdf");
         } catch (IOException e) {
             log.info(e.getMessage(), e);
         }
