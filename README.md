@@ -18,7 +18,7 @@ Generate printable math worksheets as PDFs with configurable operation sets (add
 ```
 The runnable jar is produced at:
 ```
-build/libs/math_excercises-0.0.1-SNAPSHOT.jar
+build/libs/math_excercises-1.0.0.jar
 ```
 
 ## Quick start
@@ -57,7 +57,7 @@ Supported Gradle properties:
 
 ### Option B: Run the jar directly
 ```bash
-java -jar build/libs/math_excercises-0.0.1-SNAPSHOT.jar <limit> <numberOfExercises> <iterations> [operations]
+java -jar build/libs/math_excercises-1.0.0.jar <limit> <numberOfExercises> <iterations> [operations]
 ```
 - `limit` — upper bound for numbers/results (must be >= 10)
 - `numberOfExercises` — how many equations to place on the sheet
@@ -68,20 +68,20 @@ java -jar build/libs/math_excercises-0.0.1-SNAPSHOT.jar <limit> <numberOfExercis
 
 Examples:
 ```bash
-# Only addition and subtraction
-java -jar build/libs/math_excercises-0.0.1-SNAPSHOT.jar 20 200 1 ADDITION,SUBTRACTION
+# Only addition and subtraction (4 columns)
+java -jar build/libs/math_excercises-1.0.0.jar 20 200 1 ADDITION,SUBTRACTION
 
-# Only multiplication
-java -jar build/libs/math_excercises-0.0.1-SNAPSHOT.jar 12 100 1 MULTIPLICATION
+# Only multiplication (4 columns)
+java -jar build/libs/math_excercises-1.0.0.jar 12 200 1 MULTIPLICATION
 
-# Mixed
-java -jar build/libs/math_excercises-0.0.1-SNAPSHOT.jar 20 200 1 ADDITION,DIVISION
+# Mixed (4 columns)
+java -jar build/libs/math_excercises-1.0.0.jar 20 200 1 ADDITION,DIVISION
 ```
 
 Output filename defaults to `MathExercises_<iteration>.pdf`. You can override via JVM properties:
 ```bash
 java -DoutputBaseName=Worksheets -DoutputSuffix=_Custom \
-     -jar build/libs/math_excercises-0.0.1-SNAPSHOT.jar 20 200 1 ADDITION,SUBTRACTION
+     -jar build/libs/math_excercises-1.0.0.jar 20 200 1 ADDITION,SUBTRACTION
 # -> Worksheets_1_Custom.pdf
 ```
 
@@ -96,6 +96,12 @@ Note: The Gradle tasks already set `-DoutputSuffix` to `_AddSub` or `_MulDiv` fo
 Run the test suite:
 ```bash
 ./gradlew test
+```
+
+Run tests with coverage and open the HTML report:
+```bash
+./gradlew jacocoTestReport
+xdg-open build/reports/jacoco/test/html/index.html
 ```
 
 ## Troubleshooting
