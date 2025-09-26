@@ -34,6 +34,10 @@ import java.util.Random;
 @Slf4j
 public class PdfService {
 
+    // Base font sizes
+    private static final float BASE_FONT_SIZE = 12f;
+    private static final float OPERATOR_FONT_SIZE = BASE_FONT_SIZE + 1f; // operators and '=' one point larger
+
     /**
      * Generates a single-page PDF file containing the provided equations.
      *
@@ -55,7 +59,7 @@ public class PdfService {
                 PDType0Font font = PDType0Font.load(document, getClass().getResourceAsStream("/arialuni.ttf"));
 
                 setupContentStream(contentStream, font);
-                writeEquationsToContentStream(contentStream, equations, page);
+                writeEquationsToContentStream(contentStream, equations, page, font);
             }
             document.save(baseName + "_" + iteration + suffix + ".pdf");
         } catch (IOException e) {
@@ -71,7 +75,7 @@ public class PdfService {
      * @throws IOException if stream operations fail
      */
     private void setupContentStream(PDPageContentStream contentStream, PDType0Font font) throws IOException {
-        contentStream.setFont(font, 12);
+        contentStream.setFont(font, BASE_FONT_SIZE);
         contentStream.setLeading(14.5f);
         contentStream.beginText();
     }
@@ -82,9 +86,10 @@ public class PdfService {
      * @param contentStream the page content stream
      * @param equations the equations to render
      * @param page the current PDF page
+     * @param font the font to be used for rendering text
      * @throws IOException if a PDFBox write operation fails
      */
-    private void writeEquationsToContentStream(PDPageContentStream contentStream, List<Equation> equations, PDPage page) throws IOException {
+    private void writeEquationsToContentStream(PDPageContentStream contentStream, List<Equation> equations, PDPage page, PDType0Font font) throws IOException {
         float margin = 50;
         final float pageWidth = page.getMediaBox().getWidth();
         final float columnWidth = (pageWidth - (4 * margin)) / 3;
@@ -99,13 +104,29 @@ public class PdfService {
             for (int j = 0; j < lineCounter; j++) {
                 Equation equation = equations.get(arrayIndex++);
                 String equationText = getEquationWithPlaceHolder(equation);
-                contentStream.showText(equationText);
+                // Tokenize and render with different font sizes
+                String[] tokens = equationText.split(" ");
+                for (int t = 0; t < tokens.length; t++) {
+                    String token = tokens[t];
+                    boolean isOperator = isOperatorToken(token);
+                    contentStream.setFont(font, isOperator ? OPERATOR_FONT_SIZE : BASE_FONT_SIZE);
+                    contentStream.showText(token);
+                    if (t < tokens.length - 1) {
+                        // Maintain spacing identical to original formatting
+                        contentStream.setFont(font, BASE_FONT_SIZE); // space rendered at base size
+                        contentStream.showText(" ");
+                    }
+                }
                 contentStream.newLine();
             }
             lineCounter = Math.min(equations.size() - i * lineCounter, 50);
             xOffset = columnWidth;
         }
         contentStream.endText();
+    }
+
+    private boolean isOperatorToken(String token) {
+        return "+".equals(token) || "-".equals(token) || "×".equals(token) || "÷".equals(token) || "=".equals(token);
     }
 
     /**
