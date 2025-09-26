@@ -134,7 +134,7 @@ public class GenerateService {
      * The product (dividend) remains within the given limit.
      *
      * @param limit upper bound for operands and derived dividend
-     * @return an {@link Equation} representing division (firstNumber / secondNumber = result)
+     * @return an {@link Equation} representing division (firstNumber ÷ secondNumber = result)
      */
     private Equation generateDivisionEquation(int limit) {
         int secondNumber = (int) (Math.random() * (limit - 1)) + 1; // Avoid zero
@@ -149,7 +149,7 @@ public class GenerateService {
                 .firstNumber(firstNumber)
                 .secondNumber(secondNumber)
                 .result(result)
-                .operator('/')
+                .operator('÷')
                 .build();
     }
 
@@ -170,7 +170,7 @@ public class GenerateService {
                 .firstNumber(firstNumber)
                 .secondNumber(secondNumber)
                 .result(firstNumber * secondNumber)
-                .operator('*')
+                .operator('×')
                 .build();
     }
 
@@ -208,21 +208,5 @@ public class GenerateService {
             case MULTIPLICATION -> generateMultiplicationEquation(limit);
             case DIVISION -> generateDivisionEquation(limit);
         };
-    }
-
-    /**
-     * Performs a simple arithmetic calculation for addition or subtraction.
-     *
-     * @param firstNumber first operand
-     * @param secondNumber second operand
-     * @param operator '+' for addition or '-' for subtraction
-     * @return the arithmetic result
-     */
-    private int calculate(int firstNumber, int secondNumber, char operator) {
-        if (operator == '+') {
-            return firstNumber + secondNumber;
-        } else {
-            return firstNumber - secondNumber;
-        }
     }
 }

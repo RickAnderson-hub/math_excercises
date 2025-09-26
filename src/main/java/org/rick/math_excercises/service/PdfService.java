@@ -53,6 +53,7 @@ public class PdfService {
             document.addPage(page);
             try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
                 PDType0Font font = PDType0Font.load(document, getClass().getResourceAsStream("/arialuni.ttf"));
+
                 setupContentStream(contentStream, font);
                 writeEquationsToContentStream(contentStream, equations, page);
             }

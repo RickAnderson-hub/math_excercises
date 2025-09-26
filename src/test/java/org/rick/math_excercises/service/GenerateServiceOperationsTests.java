@@ -24,7 +24,7 @@ class GenerateServiceOperationsTests {
         List<Equation> equations = generateService.generateExercises(limit, 50, List.of(Operations.MULTIPLICATION));
         assertEquals(50, equations.size());
         for (Equation eq : equations) {
-            assertEquals('*', eq.getOperator());
+            assertEquals('×', eq.getOperator());
             assertTrue(eq.getFirstNumber() > 0);
             assertTrue(eq.getSecondNumber() > 0);
             assertTrue(eq.getResult() <= limit);
@@ -38,7 +38,7 @@ class GenerateServiceOperationsTests {
         List<Equation> equations = generateService.generateExercises(limit, 50, List.of(Operations.DIVISION));
         assertEquals(50, equations.size());
         for (Equation eq : equations) {
-            assertEquals('/', eq.getOperator());
+            assertEquals('÷', eq.getOperator());
             assertTrue(eq.getSecondNumber() > 0); // divisor not zero
             assertTrue(eq.getFirstNumber() <= limit);
             assertEquals(eq.getFirstNumber(), eq.getSecondNumber() * eq.getResult());
@@ -62,4 +62,3 @@ class GenerateServiceOperationsTests {
         assertThrows(IllegalArgumentException.class, () -> generateService.generateExercises(10, 0, List.of(Operations.ADDITION)));
     }
 }
-

@@ -28,7 +28,7 @@ class PdfServiceMultiColumnTests {
             equations.add(Equation.builder().firstNumber(5).secondNumber(3).result(8).operator('+').build());
         }
         for (int i = 0; i < 60; i++) {
-            equations.add(Equation.builder().firstNumber(9).secondNumber(3).result(3).operator('/').build());
+            equations.add(Equation.builder().firstNumber(9).secondNumber(3).result(3).operator('÷').build());
         }
         System.setProperty("outputBaseName", "Columns");
         System.setProperty("outputSuffix", "_Multi");
@@ -40,4 +40,3 @@ class PdfServiceMultiColumnTests {
         out.delete();
     }
 }
-

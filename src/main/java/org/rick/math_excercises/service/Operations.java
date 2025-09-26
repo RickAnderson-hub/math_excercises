@@ -18,8 +18,8 @@ public enum Operations {
     ADDITION,
     /** Subtraction operation ( - ). */
     SUBTRACTION,
-    /** Multiplication operation ( * ). */
+    /** Multiplication operation ( × ). */
     MULTIPLICATION,
-    /** Division operation ( / ). */
+    /** Division operation ( ÷ ). */
     DIVISION;
 }

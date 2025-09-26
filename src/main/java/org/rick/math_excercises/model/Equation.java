@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
  * Model representing a single arithmetic equation to be rendered in the PDF.
  * <p>
  * An equation consists of two operands (firstNumber and secondNumber), an
- * operator (one of '+', '-', '*', '/'), and the expected result.
+ * operator (one of '+', '-', '×', '÷'), and the expected result.
  */
 @Data
 @AllArgsConstructor
@@ -43,7 +43,7 @@ public class Equation {
     private int result;
 
     /**
-     * The operator character representing the arithmetic operation ('+', '-', '*', '/').
+     * The operator character representing the arithmetic operation ('+', '-', '×', '÷').
      */
     private char operator;
 }

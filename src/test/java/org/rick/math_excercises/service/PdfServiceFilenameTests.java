@@ -25,7 +25,7 @@ class PdfServiceFilenameTests {
         PdfService pdfService = new PdfService();
         List<Equation> equations = List.of(
                 Equation.builder().firstNumber(2).secondNumber(3).result(5).operator('+').build(),
-                Equation.builder().firstNumber(6).secondNumber(2).result(3).operator('/').build()
+                Equation.builder().firstNumber(6).secondNumber(2).result(3).operator('÷').build()
         );
         System.setProperty("outputBaseName", "Worksheets");
         System.setProperty("outputSuffix", "_Custom");
@@ -37,4 +37,3 @@ class PdfServiceFilenameTests {
         out.delete();
     }
 }
-
