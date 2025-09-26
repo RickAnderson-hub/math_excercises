@@ -142,3 +142,15 @@ tasks.register('generateAll') {
     description = 'Generate both addition/subtraction and multiplication/division PDFs'
     dependsOn 'generateAddSub', 'generateMulDiv'
 }
+
+spotless {
+    java {
+        target 'src/**/*.java'
+        licenseHeaderFile 'config/spotless/license.java'
+        importOrder()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+        googleJavaFormat('1.17.0')
+    }
+}
