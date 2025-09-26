@@ -14,54 +14,48 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.rick.math_excercises.model.Equation;
+import org.rick.math_excercises.service.internal.IoUtils;
+import org.rick.math_excercises.service.internal.PdfRenderSupport;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
  * Service responsible for rendering a list of {@link Equation} instances into a PDF document.
- * <p>
- * The output filename can be customized via the JVM system properties:
- * <ul>
- *   <li><b>outputBaseName</b>: base filename (default: {@code MathExercises})</li>
- *   <li><b>outputSuffix</b>: suffix appended after the iteration (e.g., {@code _AddSub})</li>
- * </ul>
- * Layout: up to 50 equations per column, flowing across multiple columns on a single page.
  */
 @Slf4j
 public class PdfService {
 
-    // Base font sizes
     private static final float BASE_FONT_SIZE = 12f;
-    private static final float OPERATOR_FONT_SIZE = BASE_FONT_SIZE + 1f; // operators and '=' one point larger
+    private static final float OPERATOR_FONT_SIZE = BASE_FONT_SIZE + 1f;
     private static final int LINES_PER_COLUMN = 50;
 
-    /**
-     * Generates a single-page PDF file containing the provided equations.
-     *
-     * @param equations non-empty list of equations to render
-     * @param iteration iteration number used in the output filename
-     * @throws IllegalArgumentException if {@code equations} is empty
-     */
+    private final Random random;
+
+    /** Default constructor uses thread-local randomness. */
+    public PdfService() { this(ThreadLocalRandom.current()); }
+
+    /** Injectable randomness for deterministic tests. */
+    public PdfService(Random random) { this.random = random; }
+
     public void generatePdf(List<Equation> equations, int iteration) {
         if (equations.isEmpty()) {
             throw new IllegalArgumentException("Equations list cannot be empty.");
         }
-        // Allow customizing output name via JVM system properties
         String baseName = System.getProperty("outputBaseName", "MathExercises");
-        String suffix = System.getProperty("outputSuffix", ""); // e.g. _AddSub or _MulDiv
+        String suffix = System.getProperty("outputSuffix", "");
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage();
             document.addPage(page);
             try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-                PDType0Font font = PDType0Font.load(document, getClass().getResourceAsStream("/arialuni.ttf"));
-
+                PDFont font = loadFont(document);
                 setupContentStream(contentStream, font);
                 writeEquationsToContentStream(contentStream, equations, page, font);
             }
@@ -71,97 +65,58 @@ public class PdfService {
         }
     }
 
-    /**
-     * Initializes the content stream with font, leading, and begins text mode.
-     *
-     * @param contentStream content stream for the current page
-     * @param font loaded font to be used for text
-     * @throws IOException if stream operations fail
-     */
-    private void setupContentStream(PDPageContentStream contentStream, PDType0Font font) throws IOException {
+    private PDFont loadFont(PDDocument document) throws IOException {
+        var stream = getClass().getResourceAsStream("/arialuni.ttf");
+        if (stream != null) {
+            try { return PDType0Font.load(document, stream); } catch (IOException e) { log.warn("Failed to load arialuni.ttf, falling back to Helvetica", e); }
+        } else {
+            log.warn("Font resource /arialuni.ttf not found; falling back to Helvetica");
+        }
+        return new org.apache.pdfbox.pdmodel.font.PDType1Font(Standard14Fonts.FontName.HELVETICA);
+    }
+
+    private void setupContentStream(PDPageContentStream contentStream, PDFont font) throws IOException {
         contentStream.setFont(font, BASE_FONT_SIZE);
         contentStream.setLeading(14.5f);
         contentStream.beginText();
     }
 
-    /**
-     * Writes equations onto the page content stream, flowing across columns.
-     *
-     * @param contentStream the page content stream
-     * @param equations the equations to render
-     * @param page the current PDF page
-     * @param font the font to be used for rendering text
-     * @throws IOException if a PDFBox write operation fails
-     */
-    private void writeEquationsToContentStream(PDPageContentStream contentStream, List<Equation> equations, PDPage page, PDType0Font font) throws IOException {
+    private void writeEquationsToContentStream(PDPageContentStream contentStream, List<Equation> equations, PDPage page, PDFont font) throws IOException {
         final float margin = 50f;
         final float pageWidth = page.getMediaBox().getWidth();
-        final float columnWidth = (pageWidth - (4 * margin)) / 3; // unchanged layout calc
+        final float columnWidth = (pageWidth - (4 * margin)) / 3;
         final float startY = 725f;
+        List<List<Equation>> columns = PdfRenderSupport.partition(equations, LINES_PER_COLUMN);
 
-        List<List<Equation>> columns = partition(equations, LINES_PER_COLUMN);
-
-        IntStream.range(0, columns.size()).forEach(columnIndex -> {
-            try {
-                if (columnIndex > 0) { // close previous text object and start a fresh one
-                    contentStream.endText();
-                    contentStream.beginText();
-                    contentStream.setFont(font, BASE_FONT_SIZE);
-                    contentStream.setLeading(14.5f);
-                }
-                float startX = margin + columnIndex * columnWidth; // absolute per column (consistent with previous visual layout)
-                contentStream.newLineAtOffset(startX, startY);
-
-                columns.get(columnIndex).forEach(eq -> {
-                    try {
-                        renderEquationLine(contentStream, font, formatEquationTokens(eq));
-                        contentStream.newLine();
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
-                });
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+        IntStream.range(0, columns.size()).forEach(columnIndex -> IoUtils.safeIo(() -> {
+            if (columnIndex > 0) {
+                contentStream.endText();
+                contentStream.beginText();
+                contentStream.setFont(font, BASE_FONT_SIZE);
+                contentStream.setLeading(14.5f);
             }
-        });
+            float startX = margin + columnIndex * columnWidth;
+            contentStream.newLineAtOffset(startX, startY);
+            columns.get(columnIndex).forEach(eq -> IoUtils.safeIo(() -> {
+                int placeholderIndex = 1 + random.nextInt(3);
+                var tokens = PdfRenderSupport.formatTokens(eq, placeholderIndex);
+                renderEquationLine(contentStream, font, tokens);
+                contentStream.newLine();
+            }));
+        }));
         contentStream.endText();
     }
 
-    // Partition a list into fixed-size chunks (last may be smaller)
-    private static <T> List<List<T>> partition(List<T> source, int size) {
-        if (source.isEmpty()) return List.of();
-        return IntStream.range(0, (source.size() + size - 1) / size)
-                .mapToObj(chunkIndex -> source.subList(chunkIndex * size, Math.min(source.size(), (chunkIndex + 1) * size)))
-                .collect(Collectors.toList());
-    }
-
-    // Build tokens for an equation with a randomly positioned placeholder
-    private List<String> formatEquationTokens(Equation equation) {
-        int randomIndex = 1 + ThreadLocalRandom.current().nextInt(3); // 1->first,2->second,3->result placeholder
-        String first = randomIndex == 1 ? "□" : String.valueOf(equation.getFirstNumber());
-        String second = randomIndex == 2 ? "□" : String.valueOf(equation.getSecondNumber());
-        String result = randomIndex == 3 ? "□" : String.valueOf(equation.getResult());
-        return List.of(first, String.valueOf(equation.getOperator()), second, "=", result);
-    }
-
-    private void renderEquationLine(PDPageContentStream contentStream, PDType0Font font, List<String> tokens) throws IOException {
-        IntStream.range(0, tokens.size()).forEach(i -> {
+    private void renderEquationLine(PDPageContentStream contentStream, PDFont font, List<String> tokens) {
+        IntStream.range(0, tokens.size()).forEach(i -> IoUtils.safeIo(() -> {
             String token = tokens.get(i);
-            boolean operator = isOperatorToken(token);
-            try {
-                contentStream.setFont(font, operator ? OPERATOR_FONT_SIZE : BASE_FONT_SIZE);
-                contentStream.showText(token);
-                if (i < tokens.size() - 1) {
-                    contentStream.setFont(font, BASE_FONT_SIZE);
-                    contentStream.showText(" ");
-                }
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+            boolean operator = PdfRenderSupport.isOperatorToken(token);
+            contentStream.setFont(font, operator ? OPERATOR_FONT_SIZE : BASE_FONT_SIZE);
+            contentStream.showText(token);
+            if (i < tokens.size() - 1) {
+                contentStream.setFont(font, BASE_FONT_SIZE);
+                contentStream.showText(" ");
             }
-        });
-    }
-
-    private boolean isOperatorToken(String token) {
-        return "+".equals(token) || "-".equals(token) || "×".equals(token) || "÷".equals(token) || "=".equals(token);
+        }));
     }
 }

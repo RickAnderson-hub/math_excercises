@@ -14,39 +14,29 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.rick.math_excercises.model.Equation;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
-
-import static org.mockito.Mockito.when;
+import java.util.Random;
 
 class PdfServiceTests {
 
-    @Mock
-    private GenerateService generate;
-
-    @InjectMocks
     private PdfService pdfService;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        pdfService = new PdfService(new Random(42));
     }
 
     @Test
     @DisplayName("Generate PDF with multiple equations successfully")
     void generatePdfWithMultipleEquations() {
         // Given
-        List<Equation> equations = Arrays.asList(
-                new Equation(1, '1', 2, '+'),
-                new Equation(3, '1', 2, '-')
+        List<Equation> equations = List.of(
+                Equation.builder().firstNumber(1).secondNumber(1).result(2).operator('+').build(),
+                Equation.builder().firstNumber(3).secondNumber(1).result(2).operator('-').build()
         );
-        when(generate.generateExercises(10, 2)).thenReturn(equations);
         // When
         pdfService.generatePdf(equations, 1);
         // Then
@@ -60,6 +50,7 @@ class PdfServiceTests {
     void generatePdfWithNoEquations() {
         // Given
         List<Equation> emptyList = List.of();
+        // Then
         Assertions.assertThrows(IllegalArgumentException.class, () -> pdfService.generatePdf(emptyList, 1));
     }
 }
