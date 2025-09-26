@@ -7,8 +7,12 @@ import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Tests deterministic and range-correct behavior of placeholder index selection utilities in {@link PdfRenderSupport}.
+ */
 class PdfRenderSupportPlaceholderSequenceTests {
 
+    /** Ensures two Random instances with the same seed produce identical placeholder index sequences. */
     @Test
     void sequenceDeterministicForSeed() {
         Random r1 = new Random(1234);
@@ -19,6 +23,7 @@ class PdfRenderSupportPlaceholderSequenceTests {
         assertTrue(s1.stream().allMatch(i -> i>=1 && i<=3));
     }
 
+    /** Validates every generated placeholder index falls within the inclusive range [1, 3]. */
     @Test
     void choosePlaceholderIndexRange() {
         Random r = new Random(42);
@@ -28,4 +33,3 @@ class PdfRenderSupportPlaceholderSequenceTests {
         }
     }
 }
-

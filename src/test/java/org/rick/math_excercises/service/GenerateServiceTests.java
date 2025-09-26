@@ -18,6 +18,17 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Tests covering default (addition & subtraction) generation paths in {@link GenerateService}.
+ * Focus areas:
+ * <ul>
+ *   <li>Requested count honored.</li>
+ *   <li>Operand/result bounds respected.</li>
+ *   <li>Operator set restricted to + / - in default mode.</li>
+ *   <li>No zero+zero equations; non-negative invariants enforced.</li>
+ *   <li>Validation for lower-than-minimum limit.</li>
+ * </ul>
+ */
 class GenerateServiceTests {
 
     private GenerateService generateService;
@@ -27,6 +38,7 @@ class GenerateServiceTests {
         generateService = new GenerateService();
     }
 
+    /** Ensures numberOfExercises parameter yields exactly that many equations. */
     @Test
     void generatesCorrectNumberOfExercises() {
         int limit = 10;
@@ -34,6 +46,7 @@ class GenerateServiceTests {
         assertEquals(20, equations.size());
     }
 
+    /** Verifies all operands and results are within the configured limit. */
     @Test
     void generatesExercisesWithinLimit() {
         int limit = 10;
@@ -45,6 +58,7 @@ class GenerateServiceTests {
         });
     }
 
+    /** Confirms only '+' or '-' operators are produced under default operations. */
     @Test
     void generatesExercisesWithValidOperators() {
         int limit = 20;
@@ -52,6 +66,7 @@ class GenerateServiceTests {
         equations.forEach(equation -> assertTrue(equation.getOperator() == '+' || equation.getOperator() == '-'));
     }
 
+    /** Checks that addition results are positive (excludes 0 + 0). */
     @Test
     void generatesPositiveResultsForAddition() {
         int limit = 20;
@@ -60,6 +75,7 @@ class GenerateServiceTests {
                 .forEach(equation -> assertTrue(equation.getResult() >= 1));
     }
 
+    /** Validates operands/results are non-negative and not both zero simultaneously. */
     @Test
     void generatesNonNegativeNumbers() {
         int limit = 10;
@@ -72,6 +88,7 @@ class GenerateServiceTests {
         });
     }
 
+    /** Asserts that a limit below the enforced minimum triggers an exception. */
     @Test
     void handlesLowerLimit() {
         int limit = 9;

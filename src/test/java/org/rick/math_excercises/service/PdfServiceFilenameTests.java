@@ -9,6 +9,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Tests filename customization logic in {@link PdfService} driven by the system properties
+ * {@code outputBaseName} and {@code outputSuffix}.
+ */
 class PdfServiceFilenameTests {
 
     @AfterEach
@@ -20,6 +24,10 @@ class PdfServiceFilenameTests {
         System.clearProperty("outputSuffix");
     }
 
+    /**
+     * Verifies that providing custom base name and suffix via system properties results in an output
+     * PDF whose filename reflects both values.
+     */
     @Test
     void usesCustomBaseNameAndSuffix() {
         PdfService pdfService = new PdfService();

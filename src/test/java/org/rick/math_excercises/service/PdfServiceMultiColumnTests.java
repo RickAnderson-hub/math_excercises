@@ -10,6 +10,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Verifies that {@link PdfService} can render a large list of equations across multiple columns
+ * on a single page and produce the expected output file when base name and suffix overrides are used.
+ */
 class PdfServiceMultiColumnTests {
 
     @AfterEach
@@ -19,6 +23,9 @@ class PdfServiceMultiColumnTests {
         System.clearProperty("outputSuffix");
     }
 
+    /**
+     * Generates 120 equations (60 addition, 60 division) and asserts the resulting multi-column PDF file exists.
+     */
     @Test
     void rendersMultipleColumnsForManyEquations() {
         PdfService pdfService = new PdfService();

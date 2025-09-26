@@ -9,6 +9,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Tests covering MULTIPLICATION & DIVISION generation plus fallback and validation scenarios in {@link GenerateService}.
+ */
 class GenerateServiceOperationsTests {
 
     private GenerateService generateService;
@@ -18,6 +21,7 @@ class GenerateServiceOperationsTests {
         generateService = new GenerateService();
     }
 
+    /** Ensures only multiplication equations are generated and products match expected results. */
     @Test
     void generatesOnlyMultiplicationWhenRequested() {
         int limit = 12;
@@ -32,6 +36,7 @@ class GenerateServiceOperationsTests {
         }
     }
 
+    /** Validates only division equations are generated and quotient * divisor == dividend invariant holds. */
     @Test
     void generatesOnlyDivisionWhenRequested() {
         int limit = 20;
@@ -45,6 +50,7 @@ class GenerateServiceOperationsTests {
         }
     }
 
+    /** Confirms null / empty / null elements default to addition & subtraction operations set. */
     @Test
     void defaultsToAddSubWhenOperationsNullOrEmptyOrNullEntries() {
         int limit = 15;
@@ -56,6 +62,7 @@ class GenerateServiceOperationsTests {
         for (Equation eq : c) assertTrue(eq.getOperator() == '+' || eq.getOperator() == '-');
     }
 
+    /** Asserts invalid exercise counts throw an {@link IllegalArgumentException}. */
     @Test
     void throwsOnInvalidNumberOfExercises() {
         assertThrows(IllegalArgumentException.class, () -> generateService.generateExercises(10, 0));

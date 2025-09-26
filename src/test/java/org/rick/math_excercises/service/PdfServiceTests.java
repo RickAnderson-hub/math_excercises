@@ -20,6 +20,14 @@ import java.io.File;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Tests for basic PDF generation behaviors in {@link PdfService} including:
+ * <ul>
+ *   <li>Successful creation of a PDF when given a non-empty list of equations.</li>
+ *   <li>Validation that an empty list triggers an {@link IllegalArgumentException}.</li>
+ * </ul>
+ * Uses a seeded {@link java.util.Random} to ensure deterministic placeholder placement.
+ */
 class PdfServiceTests {
 
     private PdfService pdfService;
@@ -29,6 +37,7 @@ class PdfServiceTests {
         pdfService = new PdfService(new Random(42));
     }
 
+    /** Verifies that a PDF file is written to disk for a small list of equations. */
     @Test
     @DisplayName("Generate PDF with multiple equations successfully")
     void generatePdfWithMultipleEquations() {
@@ -45,6 +54,7 @@ class PdfServiceTests {
         file.delete(); // Clean up
     }
 
+    /** Ensures attempting to generate a PDF with an empty equation list fails fast. */
     @Test
     @DisplayName("Generate PDF with no equations")
     void generatePdfWithNoEquations() {

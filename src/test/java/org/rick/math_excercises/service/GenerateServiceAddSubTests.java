@@ -8,6 +8,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Tests for explicitly constrained ADDITION vs SUBTRACTION generation ensuring only the requested
+ * operator is produced and arithmetic invariants hold (no zero+zero, non-negative results, bounds respected).
+ */
 class GenerateServiceAddSubTests {
 
     private GenerateService generateService;
@@ -17,6 +21,7 @@ class GenerateServiceAddSubTests {
         generateService = new GenerateService();
     }
 
+    /** Verifies only ADDITION equations are produced with correct sums and constraints. */
     @Test
     void generatesOnlyAdditionWhenRequested() {
         int limit = 20;
@@ -32,6 +37,7 @@ class GenerateServiceAddSubTests {
         }
     }
 
+    /** Verifies only SUBTRACTION equations are produced with non-negative results. */
     @Test
     void generatesOnlySubtractionWhenRequested() {
         int limit = 20;
@@ -47,4 +53,3 @@ class GenerateServiceAddSubTests {
         }
     }
 }
-

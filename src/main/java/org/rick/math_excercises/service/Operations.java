@@ -21,5 +21,5 @@ public enum Operations {
     /** Multiplication operation ( × ). */
     MULTIPLICATION,
     /** Division operation ( ÷ ). */
-    DIVISION;
+    DIVISION
 }

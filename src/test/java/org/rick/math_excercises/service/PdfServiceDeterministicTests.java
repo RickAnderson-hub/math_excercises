@@ -14,6 +14,10 @@ import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Tests deterministic behavior of {@link PdfService} when supplied with seeded {@link java.util.Random} instances.
+ * Ensures identical equation token placement (including placeholder positions) produces byte-equivalent extracted text.
+ */
 class PdfServiceDeterministicTests {
 
     @AfterEach
@@ -24,6 +28,10 @@ class PdfServiceDeterministicTests {
         System.clearProperty("outputSuffix");
     }
 
+    /**
+     * Generates two PDFs using different {@link PdfService} instances sharing the same PRNG seed and
+     * asserts that their extracted textual content matches exactly.
+     */
     @Test
     void generatesDeterministicEquationLayoutForSameSeed() throws IOException {
         System.setProperty("outputBaseName", "Deterministic");

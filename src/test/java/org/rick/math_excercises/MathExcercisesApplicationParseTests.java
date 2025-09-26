@@ -9,6 +9,16 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for the hidden operation parsing logic in {@link MathExcercisesApplication}.
+ * <p>
+ * These tests validate:
+ * <ul>
+ *   <li>Case-insensitive, comma/whitespace-tolerant parsing of operations strings.</li>
+ *   <li>Defaulting to ADDITION and SUBTRACTION when the input is blank.</li>
+ *   <li>Proper exception throwing on unknown operation tokens.</li>
+ * </ul>
+ */
 class MathExcercisesApplicationParseTests {
 
     @SuppressWarnings("unchecked")
@@ -28,6 +38,10 @@ class MathExcercisesApplicationParseTests {
         }
     }
 
+    /**
+     * Verifies that a comma-separated, mixed-case list with surrounding whitespace is parsed
+     * into the expected distinct {@link Operations} without duplication.
+     */
     @Test
     void parsesCommaSeparatedOperationsCaseInsensitive() {
         Set<Operations> ops = invokeParse(" addition, DIVISION ");
@@ -36,6 +50,9 @@ class MathExcercisesApplicationParseTests {
         assertEquals(2, ops.size());
     }
 
+    /**
+     * Ensures a blank or whitespace-only argument falls back to the default ADDITION & SUBTRACTION set.
+     */
     @Test
     void defaultsToAddSubOnBlank() {
         Set<Operations> ops = invokeParse("   ");
@@ -44,6 +61,9 @@ class MathExcercisesApplicationParseTests {
         assertEquals(2, ops.size());
     }
 
+    /**
+     * Confirms that supplying an unrecognized symbolic name results in an {@link IllegalArgumentException}.
+     */
     @Test
     void throwsOnUnknownOperation() {
         assertThrows(IllegalArgumentException.class, () -> invokeParse("FOO"));
