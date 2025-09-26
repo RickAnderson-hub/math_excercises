@@ -12,10 +12,11 @@ package org.rick.math_excercises.service;
 
 import org.rick.math_excercises.model.Equation;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.IntStream;
 
 /**
  * This class is responsible for generating math exercises.
@@ -59,31 +60,15 @@ public class GenerateService {
         if (numberOfExercises < 1) {
             throw new IllegalArgumentException("numberOfExercises must be >= 1");
         }
-        // sanitize operations
-        List<Operations> ops;
-        if (operations == null || operations.isEmpty()) {
-            ops = List.of(Operations.ADDITION, Operations.SUBTRACTION);
-        } else {
-            ops = new ArrayList<>();
-            for (Operations op : operations) {
-                if (op != null) ops.add(op);
-            }
-            if (ops.isEmpty()) {
-                ops = List.of(Operations.ADDITION, Operations.SUBTRACTION);
-            }
-        }
+        List<Operations> ops = java.util.Optional.ofNullable(operations)
+                .filter(c -> !c.isEmpty())
+                .map(c -> c.stream().filter(Objects::nonNull).toList())
+                .filter(list -> !list.isEmpty())
+                .orElse(List.of(Operations.ADDITION, Operations.SUBTRACTION));
 
-        List<Equation> equations = new ArrayList<>(numberOfExercises);
-        for (int i = 0; i < numberOfExercises; i++) {
-            Equation equation = generateEquationForOperations(limit, ops);
-            equations.add(Equation.builder()
-                    .firstNumber(equation.getFirstNumber())
-                    .secondNumber(equation.getSecondNumber())
-                    .result(equation.getResult())
-                    .operator(equation.getOperator())
-                    .build());
-        }
-        return equations;
+        return IntStream.range(0, numberOfExercises)
+                .mapToObj(i -> generateEquationForOperations(limit, ops))
+                .toList();
     }
 
     /**
