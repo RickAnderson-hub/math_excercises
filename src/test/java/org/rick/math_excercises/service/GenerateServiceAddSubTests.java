@@ -60,7 +60,7 @@ class GenerateServiceAddSubTests {
       assertTrue(eq.getFirstNumber() >= 0);
       assertTrue(eq.getSecondNumber() >= 0);
       assertTrue(eq.getResult() >= 0);
-      assertTrue(eq.getFirstNumber() - eq.getSecondNumber() == eq.getResult());
+      assertEquals(eq.getFirstNumber() - eq.getSecondNumber(), eq.getResult());
       assertFalse(eq.getFirstNumber() == 0 && eq.getSecondNumber() == 0);
     }
   }
