@@ -9,7 +9,7 @@
  */
 
 /**
- * Root package for the Math Exercises Generator application, including the main entry point
- * and orchestration of services responsible for exercise generation and PDF rendering.
+ * Root package for the Math Exercises Generator application, including the main entry point and
+ * orchestration of services responsible for exercise generation and PDF rendering.
  */
 package org.rick.math_excercises;

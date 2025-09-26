@@ -10,7 +10,7 @@
 
 /**
  * Domain model classes for equations used when generating math worksheets.
- * <p>
- * See {@link org.rick.math_excercises.model.Equation}.
+ *
+ * <p>See {@link org.rick.math_excercises.model.Equation}.
  */
 package org.rick.math_excercises.model;

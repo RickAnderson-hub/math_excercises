@@ -10,10 +10,12 @@
 
 /**
  * Services for creating math exercises and rendering them to PDF.
+ *
  * <ul>
- *   <li>{@link org.rick.math_excercises.service.GenerateService} — produces randomized equations.</li>
- *   <li>{@link org.rick.math_excercises.service.PdfService} — formats equations into a printable PDF.</li>
- *   <li>{@link org.rick.math_excercises.service.Operations} — enumerates supported operations.</li>
+ *   <li>{@link org.rick.math_excercises.service.GenerateService} — produces randomized equations.
+ *   <li>{@link org.rick.math_excercises.service.PdfService} — formats equations into a printable
+ *       PDF.
+ *   <li>{@link org.rick.math_excercises.service.Operations} — enumerates supported operations.
  * </ul>
  */
 package org.rick.math_excercises.service;
