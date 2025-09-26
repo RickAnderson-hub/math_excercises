@@ -19,7 +19,9 @@ import org.rick.math_excercises.model.Equation;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Service responsible for rendering a list of {@link Equation} instances into a PDF document.
@@ -37,6 +39,7 @@ public class PdfService {
     // Base font sizes
     private static final float BASE_FONT_SIZE = 12f;
     private static final float OPERATOR_FONT_SIZE = BASE_FONT_SIZE + 1f; // operators and '=' one point larger
+    private static final int LINES_PER_COLUMN = 50;
 
     /**
      * Generates a single-page PDF file containing the provided equations.
@@ -90,57 +93,60 @@ public class PdfService {
      * @throws IOException if a PDFBox write operation fails
      */
     private void writeEquationsToContentStream(PDPageContentStream contentStream, List<Equation> equations, PDPage page, PDType0Font font) throws IOException {
-        float margin = 50;
+        final float margin = 50f;
         final float pageWidth = page.getMediaBox().getWidth();
-        final float columnWidth = (pageWidth - (4 * margin)) / 3;
-        int columns = (equations.size() + 49) / 50;
-        float yOffset = 725;
-        float xOffset = margin;
-        int lineCounter = Math.min(50, equations.size());
-        int arrayIndex = 0;
+        final float columnWidth = (pageWidth - (4 * margin)) / 3; // unchanged layout calc
 
-        for (int i = 1; i <= columns; i++) {
-            contentStream.newLineAtOffset(xOffset, yOffset);
-            for (int j = 0; j < lineCounter; j++) {
-                Equation equation = equations.get(arrayIndex++);
-                String equationText = getEquationWithPlaceHolder(equation);
-                // Tokenize and render with different font sizes
-                String[] tokens = equationText.split(" ");
-                for (int t = 0; t < tokens.length; t++) {
-                    String token = tokens[t];
-                    boolean isOperator = isOperatorToken(token);
-                    contentStream.setFont(font, isOperator ? OPERATOR_FONT_SIZE : BASE_FONT_SIZE);
-                    contentStream.showText(token);
-                    if (t < tokens.length - 1) {
-                        // Maintain spacing identical to original formatting
-                        contentStream.setFont(font, BASE_FONT_SIZE); // space rendered at base size
-                        contentStream.showText(" ");
-                    }
-                }
+        // Partition equations into columns of up to LINES_PER_COLUMN
+        List<List<Equation>> columns = partition(equations, LINES_PER_COLUMN);
+
+        // Iterate columns with index using IntStream to compute incremental x translation
+        for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
+            float xTranslation = (columnIndex == 0) ? margin : columnWidth; // relative translation
+            contentStream.newLineAtOffset(xTranslation, 725);
+            List<Equation> columnEquations = columns.get(columnIndex);
+
+            for (Equation eq : columnEquations) {
+                // Each equation line is rendered token-by-token with font size switching
+                renderEquationLine(contentStream, font, formatEquationTokens(eq));
                 contentStream.newLine();
             }
-            lineCounter = Math.min(equations.size() - i * lineCounter, 50);
-            xOffset = columnWidth;
         }
         contentStream.endText();
     }
 
-    private boolean isOperatorToken(String token) {
-        return "+".equals(token) || "-".equals(token) || "×".equals(token) || "÷".equals(token) || "=".equals(token);
+    // Partition a list into fixed-size chunks (last may be smaller)
+    private static <T> List<List<T>> partition(List<T> source, int size) {
+        if (source.isEmpty()) return List.of();
+        return IntStream.range(0, (source.size() + size - 1) / size)
+                .mapToObj(chunkIndex -> source.subList(chunkIndex * size, Math.min(source.size(), (chunkIndex + 1) * size)))
+                .collect(Collectors.toList());
     }
 
-    /**
-     * Formats an equation with a randomly placed placeholder box (□) for either the first operand,
-     * second operand, or the result, to create fill-in-the-blank style problems.
-     *
-     * @param equation equation to format
-     * @return formatted string (e.g., {@code 3 + □ = 5})
-     */
-    private String getEquationWithPlaceHolder(Equation equation) {
-        int randomIndex = 1 + new Random().nextInt(3);
-        String firstNumber = randomIndex == 1 ? "□" : String.valueOf(equation.getFirstNumber());
-        String secondNumber = randomIndex == 2 ? "□" : String.valueOf(equation.getSecondNumber());
+    // Build tokens for an equation with a randomly positioned placeholder
+    private List<String> formatEquationTokens(Equation equation) {
+        int randomIndex = 1 + ThreadLocalRandom.current().nextInt(3); // 1->first,2->second,3->result placeholder
+        String first = randomIndex == 1 ? "□" : String.valueOf(equation.getFirstNumber());
+        String second = randomIndex == 2 ? "□" : String.valueOf(equation.getSecondNumber());
         String result = randomIndex == 3 ? "□" : String.valueOf(equation.getResult());
-        return firstNumber + " " + equation.getOperator() + " " + secondNumber + " = " + result;
+        return List.of(first, String.valueOf(equation.getOperator()), second, "=", result);
+    }
+
+    private void renderEquationLine(PDPageContentStream contentStream, PDType0Font font, List<String> tokens) throws IOException {
+        // Using stream for clarity; we still need ordered tokens
+        for (int i = 0; i < tokens.size(); i++) {
+            String token = tokens.get(i);
+            boolean operator = isOperatorToken(token);
+            contentStream.setFont(font, operator ? OPERATOR_FONT_SIZE : BASE_FONT_SIZE);
+            contentStream.showText(token);
+            if (i < tokens.size() - 1) {
+                contentStream.setFont(font, BASE_FONT_SIZE);
+                contentStream.showText(" ");
+            }
+        }
+    }
+
+    private boolean isOperatorToken(String token) {
+        return "+".equals(token) || "-".equals(token) || "×".equals(token) || "÷".equals(token) || "=".equals(token);
     }
 }
