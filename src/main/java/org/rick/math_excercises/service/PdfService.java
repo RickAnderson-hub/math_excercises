@@ -18,6 +18,7 @@ import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.rick.math_excercises.model.Equation;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -100,18 +101,22 @@ public class PdfService {
         // Partition equations into columns of up to LINES_PER_COLUMN
         List<List<Equation>> columns = partition(equations, LINES_PER_COLUMN);
 
-        // Iterate columns with index using IntStream to compute incremental x translation
-        for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
-            float xTranslation = (columnIndex == 0) ? margin : columnWidth; // relative translation
-            contentStream.newLineAtOffset(xTranslation, 725);
-            List<Equation> columnEquations = columns.get(columnIndex);
-
-            for (Equation eq : columnEquations) {
-                // Each equation line is rendered token-by-token with font size switching
-                renderEquationLine(contentStream, font, formatEquationTokens(eq));
-                contentStream.newLine();
+        IntStream.range(0, columns.size()).forEach(columnIndex -> {
+            float xTranslation = (columnIndex == 0) ? margin : columnWidth;
+            try {
+                contentStream.newLineAtOffset(xTranslation, 725);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
-        }
+            columns.get(columnIndex).forEach(eq -> {
+                try {
+                    renderEquationLine(contentStream, font, formatEquationTokens(eq));
+                    contentStream.newLine();
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            });
+        });
         contentStream.endText();
     }
 
@@ -133,17 +138,20 @@ public class PdfService {
     }
 
     private void renderEquationLine(PDPageContentStream contentStream, PDType0Font font, List<String> tokens) throws IOException {
-        // Using stream for clarity; we still need ordered tokens
-        for (int i = 0; i < tokens.size(); i++) {
+        IntStream.range(0, tokens.size()).forEach(i -> {
             String token = tokens.get(i);
             boolean operator = isOperatorToken(token);
-            contentStream.setFont(font, operator ? OPERATOR_FONT_SIZE : BASE_FONT_SIZE);
-            contentStream.showText(token);
-            if (i < tokens.size() - 1) {
-                contentStream.setFont(font, BASE_FONT_SIZE);
-                contentStream.showText(" ");
+            try {
+                contentStream.setFont(font, operator ? OPERATOR_FONT_SIZE : BASE_FONT_SIZE);
+                contentStream.showText(token);
+                if (i < tokens.size() - 1) {
+                    contentStream.setFont(font, BASE_FONT_SIZE);
+                    contentStream.showText(" ");
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
-        }
+        });
     }
 
     private boolean isOperatorToken(String token) {
