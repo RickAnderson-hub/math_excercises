@@ -97,25 +97,32 @@ public class PdfService {
         final float margin = 50f;
         final float pageWidth = page.getMediaBox().getWidth();
         final float columnWidth = (pageWidth - (4 * margin)) / 3; // unchanged layout calc
+        final float startY = 725f;
 
-        // Partition equations into columns of up to LINES_PER_COLUMN
         List<List<Equation>> columns = partition(equations, LINES_PER_COLUMN);
 
         IntStream.range(0, columns.size()).forEach(columnIndex -> {
-            float xTranslation = (columnIndex == 0) ? margin : columnWidth;
             try {
-                contentStream.newLineAtOffset(xTranslation, 725);
+                if (columnIndex > 0) { // close previous text object and start a fresh one
+                    contentStream.endText();
+                    contentStream.beginText();
+                    contentStream.setFont(font, BASE_FONT_SIZE);
+                    contentStream.setLeading(14.5f);
+                }
+                float startX = margin + columnIndex * columnWidth; // absolute per column (consistent with previous visual layout)
+                contentStream.newLineAtOffset(startX, startY);
+
+                columns.get(columnIndex).forEach(eq -> {
+                    try {
+                        renderEquationLine(contentStream, font, formatEquationTokens(eq));
+                        contentStream.newLine();
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                });
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
-            columns.get(columnIndex).forEach(eq -> {
-                try {
-                    renderEquationLine(contentStream, font, formatEquationTokens(eq));
-                    contentStream.newLine();
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-            });
         });
         contentStream.endText();
     }
