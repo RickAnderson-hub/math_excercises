@@ -1,3 +1,21 @@
+# Additional notes
+
+## Java upgrade
+
+This project was updated to target Java 21 (LTS). The Gradle Java toolchain in `build.gradle` now requests Java 21. If your environment doesn't have JDK 21 installed, Gradle's foojay resolver plugin can automatically provision it when running builds.
+
+If you want to install JDK 21 manually on Linux (Debian/Ubuntu), a quick example:
+
+```bash
+# Ubuntu/Debian example (using Temurin/Adoptium):
+sudo apt-get update && sudo apt-get install -y wget
+wget https://github.com/adoptium/temurin21-binaries/releases/latest/download/OpenJDK21U-jdk_x64_linux_hotspot_21_*_tar.gz -O temurin21.tar.gz
+sudo mkdir -p /usr/lib/jvm && sudo tar -xzf temurin21.tar.gz -C /usr/lib/jvm && rm temurin21.tar.gz
+export JAVA_HOME=/usr/lib/jvm/<extracted-folder>
+export PATH=$JAVA_HOME/bin:$PATH
+```
+
+You can also rely on Gradle's toolchain resolution to download a suitable JDK at build time.
 # Math Exercises Generator
 
 Generate printable math worksheets as PDFs with configurable operation sets (addition, subtraction, multiplication, division). Includes simple CLI and convenient Gradle tasks.
