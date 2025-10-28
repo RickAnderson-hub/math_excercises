@@ -54,7 +54,7 @@ tasks.named('test') {
 }
 
 jacoco {
-    toolVersion = '0.8.13'
+    toolVersion = '0.8.14'
 }
 
 // Configure the existing JaCoCo report task created by the jacoco plugin
