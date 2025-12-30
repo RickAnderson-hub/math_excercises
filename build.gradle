@@ -26,7 +26,7 @@ repositories {
 }
 
 ext {
-    set('springShellVersion', "3.4.1")
+    set('springShellVersion', "4.0.0")
 }
 
 dependencies {
