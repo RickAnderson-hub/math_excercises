@@ -10,35 +10,29 @@
 
 package org.rick.math_excercises.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 /**
- * Model representing a single arithmetic equation to be rendered in the PDF.
+ * Immutable model representing a single arithmetic equation to be rendered in the PDF.
  *
  * <p>An equation consists of two operands (firstNumber and secondNumber), an operator (one of '+',
  * '-', '×', '÷'), and the expected result.
+ *
+ * @param firstNumber  The first operand in the equation (left-hand side).
+ * @param secondNumber The second operand in the equation (right-hand side).
+ * @param result       The computed result of applying the operator to firstNumber and secondNumber.
+ * @param operator     The operator character representing the arithmetic operation ('+', '-', '×', '÷').
  */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class Equation {
+public record Equation(int firstNumber, int secondNumber, int result, char operator) {
 
-  /** The first operand in the equation (left-hand side). */
-  private int firstNumber;
-
-  /** The second operand in the equation (right-hand side). */
-  private int secondNumber;
-
-  /**
-   * The computed result of applying {@link #operator} to {@link #firstNumber} and {@link
-   * #secondNumber}.
-   */
-  private int result;
-
-  /** The operator character representing the arithmetic operation ('+', '-', '×', '÷'). */
-  private char operator;
+	/**
+	 * Static factory method for creating an Equation.
+	 *
+	 * @param firstNumber  the first operand
+	 * @param secondNumber the second operand
+	 * @param result       the computed result
+	 * @param operator     the operator character
+	 * @return a new Equation instance
+	 */
+	public static Equation of(int firstNumber, int secondNumber, int result, char operator) {
+		return new Equation(firstNumber, secondNumber, result, operator);
+	}
 }
