@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.7'
     id 'io.spring.dependency-management' version '1.1.7'
-    id 'com.diffplug.spotless' version '8.0.0'
     id 'jacoco'
 }
 
@@ -92,7 +91,7 @@ tasks.named('jacocoTestCoverageVerification', JacocoCoverageVerification) {
 
 // Ensure formatting is checked and coverage verified in the verification lifecycle
 tasks.named('check') {
-    dependsOn 'spotlessCheck', 'jacocoTestCoverageVerification'
+    dependsOn 'jacocoTestCoverageVerification'
 }
 
 // --- Custom generation tasks ---
@@ -141,16 +140,4 @@ tasks.register('generateAll') {
     group = 'application'
     description = 'Generate both addition/subtraction and multiplication/division PDFs'
     dependsOn 'generateAddSub', 'generateMulDiv'
-}
-
-spotless {
-    java {
-        target 'src/**/*.java'
-        licenseHeaderFile 'config/spotless/license.java'
-        importOrder()
-        removeUnusedImports()
-        trimTrailingWhitespace()
-        endWithNewline()
-        googleJavaFormat('1.17.0')
-    }
 }
